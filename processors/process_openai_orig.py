@@ -7,37 +7,11 @@ import uuid
 import boto3
 import json
 
-def send_email(recipient, openai_response):
-    print (openai_response)
+def send_email(recipient):
     print ("sending email to ", recipient)
-    data = {    
-        "ToAddresses": "rajesh_ghosh@persistent.com",
-        "emailSubject": "Function eMail",
-        "emailSource": "rajesh.ghosh.here@gmail.com",
-        "completion": "completion ",
-        "promptEntered": "Query",
-        "completionEntered": "completion",
 
-    }
-    PROMPT_INSERT_LAMBDA = os.getenv('PROMPT_INSERT_LAMBDA')
-    lambda_function_name = "emailResult"
-    aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-    aws_region = os.getenv('AWS_DEFAULT_REGION')
-    lambda_client = boto3.client('lambda', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, region_name=aws_region)
-    lambda_response = lambda_client.invoke(
-        FunctionName=lambda_function_name,
-        InvocationType='RequestResponse',  # Use 'Event' for asynchronous invocation
-        Payload=json.dumps(data)
-    )
-    if lambda_response['StatusCode'] != 200:
-        raise Exception(f"AWS Lambda invocation failed with status code: {lambda_response['StatusCode']}")
-    else:
-        print ("Success calling lambda!")
-    return "done"
-
-def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
-    print ("In call_openai ")
+def run_email_function():
+    print ("run_email_function ")
 
     dotenv.load_dotenv(".env")
     env_vars = dotenv.dotenv_values()
@@ -45,8 +19,9 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
         os.environ[key] = env_vars[key]
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     OPENAI_ORGANIZATION = os.getenv('OPENAI_ORGANIZATION')
-    client = OpenAI(organization = OPENAI_ORGANIZATION, api_key = OPENAI_API_KEY)  
-    
+    client = OpenAI(organization = OPENAI_ORGANIZATION, api_key = OPENAI_API_KEY) 
+    # Step 1: send the conversation and available functions to the model
+    messages = [{"role": "user", "content": "What's the weather like in San Francisco, Tokyo, and Paris?"}]
     tools = [
         {
             "type": "function",
@@ -58,11 +33,7 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
                     "properties": {
                         "recipient": {
                             "type": "string",
-                            "description": "The recipient of the email. It should be name of a person"
-                        },
-                        "openai_response": {
-                            "type": "string",
-                            "description": "the response from the openai api call"
+                            "description": "The recipient of the email"
                         }
                     },
                     "required": ["recipient"]
@@ -71,21 +42,16 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
         }
 
     ]
-    
-    # unit=function_args.get("unit"),
-    print ("messages before the call ", messages)
-    openai_response = client.chat.completions.create(
-        model=model_name,
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo-1106",
         messages=messages,
         tools=tools,
         tool_choice="auto",  # auto is default, but we'll be explicit
     )
-    response_message = openai_response.choices[0].message
-    print (response_message)
-    tool_calls = response_message.tool_calls 
-    print (tool_calls)
+    response_message = response.choices[0].message
+    tool_calls = response_message.tool_calls
+    # Step 2: check if the model wanted to call a function
     if tool_calls:
-        print ("In tools calls")
         # Step 3: call the function
         # Note: the JSON response may not always be valid; be sure to handle errors
         available_functions = {
@@ -95,12 +61,10 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
         # Step 4: send the info for each function call and function response to the model
         for tool_call in tool_calls:
             function_name = tool_call.function.name
-            print (function_name)
             function_to_call = available_functions[function_name]
             function_args = json.loads(tool_call.function.arguments)
             function_response = function_to_call(
-                recipient=function_args.get("recipient"),
-                openai_response=function_args.get("openai_response")
+                recipient=function_args.get("recipient")
             )
             messages.append(
                 {
@@ -111,16 +75,27 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
                 }
             )  # extend conversation with function response
         second_response = client.chat.completions.create(
-            model=model_name,
+            model="gpt-3.5-turbo-1106",
             messages=messages,
         )  # get a new response from the model where it can see the function response
-        
-        print (second_response)
-        
-   
+        return second_response
+
+def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
+    print ("In call_openai ")
+
+    dotenv.load_dotenv(".env")
+    env_vars = dotenv.dotenv_values()
+    for key in env_vars:
+        os.environ[key] = env_vars[key]
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    OPENAI_ORGANIZATION = os.getenv('OPENAI_ORGANIZATION')
+    client = OpenAI(organization = OPENAI_ORGANIZATION, api_key = OPENAI_API_KEY)    
+    openai_response = client.chat.completions.create(
+        model=model_name,     
+        messages=messages
+    )    
     # Extracting the message content
-    print ("Reached here")
-    message_content = second_response.choices[0].message.content
+    message_content = openai_response.choices[0].message.content
 
     # Extracting token usage information
     input_tokens = openai_response.usage.prompt_tokens

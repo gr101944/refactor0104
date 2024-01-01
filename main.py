@@ -61,6 +61,7 @@ from utils.trim_conversation_manage_mem import trim_conversation_history
 from utils.get_num_tokens_from_string import get_num_tokens_from_string
 from processors.process_text2image import process_text2image
 from processors.process_huggingface import process_huggingface
+
 from processors.process_wikipedia import process_wikipedia
 from processors.process_openai import call_openai
 from processors.process_image_infer import upload_to_s3_refactor, generate_presigned_url, get_inference
@@ -730,7 +731,7 @@ def extract_chunks_from_uploaded_file(uploaded_file, repo_selected_for_upload, p
 
     return chunks
 
-def process_openai(prompt, model, Conversation, kr_repos_chosen, domain_choice):
+def process_openai(user_name_logged, prompt, model, Conversation, kr_repos_chosen, domain_choice):
     print ("In process_openai ")
 
 
@@ -853,9 +854,8 @@ def selected_data_sources(selected_elements, prompt, model, llm, Conversation, k
         if element in selected_elements_functions:
 
             if (element == 'Open AI'):
-                str_response = selected_elements_functions[element](prompt, model, Conversation, domain_choice)
-                json_response = json.loads(str_response)
-                
+                str_response = selected_elements_functions[element](user_name_logged, prompt, model, Conversation, kr_repos_chosen, domain_choice)
+                json_response = json.loads(str_response)                
                
                 all_responses.append(json_response)
                 
@@ -1040,7 +1040,7 @@ def get_response(user_input, kr_repos_chosen):
                         st.subheader('Summary from all sources')
                         generated_string = str(st.session_state['generated_response'][-1])
 
-                        summary = process_openai("Please generate a short summary of the following text in professional words: " + generated_string, model, Conversation)
+                        summary = process_openai("Please generate a short summary of the following text in professional words: " + generated_string, model, Conversation, domain_choice)
 
                         summary_json = json.loads(summary)  # Parse the summary string as JSON
                   
@@ -1111,9 +1111,9 @@ with container:
                     with col1:
                         goButton = st.button("Go")     
                     with col2:
-                        add_to_library = st.button("Add to 📚", help = "add this prompt to your prompt library")               
+                        add_to_library = st.button("Add to Library📚", help = "add this prompt to your prompt library")               
                     with col3:
-                        show_library = st.button("Your 📚", help = "click to see your prompt library") 
+                        show_library = st.button("Your Library 📚", help = "click to see your prompt library") 
                     with col4:
                         improve_button = st.button("Improve", type="primary", help = "report this prompt to for investigation")    
                     if user_input:                      
@@ -1140,9 +1140,9 @@ with container:
                     goButton = st.button("Go")   
                                     
                 with col3:
-                    show_library = st.button("Your 📚", help = "click to see your prompt library")
+                    show_library = st.button("Your Library📚", help = "click to see your prompt library")
                 with col2:
-                    add_to_library = st.button("Add to 📚", help = "add this prompt to your prompt library") 
+                    add_to_library = st.button("Add to Library📚", help = "add this prompt to your prompt library") 
                 with col4:
                     improve_button = st.button("Improve", type="primary", help = "report this prompt to for investigation")         
                 

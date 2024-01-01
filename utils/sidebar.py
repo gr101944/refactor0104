@@ -188,6 +188,7 @@ def create_sidebar (st):
                 text2Image_source               
               )
             trigger_inference = st.sidebar.checkbox("Run Image Inference")
+            st.sidebar.link_button("Explore SnowBench ❄️", "https://snowbench2-persistent.streamlit.app/", help = "Ask questions to SnowFlake warehouse in natural language",)
 
             
             if 'text2Image' in selected_sources_image:
@@ -245,6 +246,6 @@ def create_sidebar (st):
         show_text_area,
         trigger_inference,
         domain_choice,
-        privacy_setting
+        privacy_setting    
         
     )
