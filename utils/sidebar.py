@@ -10,6 +10,7 @@ STATIC_ASSEST_BUCKET_URL = os.getenv("STATIC_ASSEST_BUCKET_URL")
 STATIC_ASSEST_BUCKET_FOLDER = os.getenv("STATIC_ASSEST_BUCKET_FOLDER")
 UPDATE_CONFIG_LAMBDA = os.getenv('UPDATE_CONFIG_LAMBDA')
 QUERY_CONFIG_LAMBDA = os.getenv ('QUERY_CONFIG_LAMBDA')
+SNOWBENCH_URL = os.getenv ('SNOWBENCH_URL')
 LOGO_NAME = os.getenv("LOGO_NAME")  
 import pinecone
 
@@ -188,7 +189,7 @@ def create_sidebar (st):
                 text2Image_source               
               )
             trigger_inference = st.sidebar.checkbox("Run Image Inference")
-            st.sidebar.link_button("Explore SnowBench ❄️", "https://snowbench2-persistent.streamlit.app/", help = "Ask questions to SnowFlake warehouse in natural language",)
+            st.sidebar.link_button("Explore SnowBench ❄️", SNOWBENCH_URL, help = "Ask questions to SnowFlake warehouse in natural language",)
 
             
             if 'text2Image' in selected_sources_image:
