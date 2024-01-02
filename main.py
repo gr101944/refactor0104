@@ -89,6 +89,19 @@ lambda_client = boto3.client('lambda', aws_access_key_id=aws_access_key_id, aws_
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENAI_ORGANIZATION = os.getenv('OPENAI_ORGANIZATION')
+# AZURE_OPENAI_API_KEY = os.getenv('AZURE_OPENAI_API_KEY')
+# AZURE_OPENAI_API_BASE = os.getenv('AZURE_OPENAI_API_BASE')
+# AZURE_OPENAI_API_VERSION_GPT432K = os.getenv('AZURE_OPENAI_API_VERSION_GPT432K')
+# AZURE_OPENAI_API_TYPE = os.getenv('AZURE_OPENAI_API_TYPE')
+# AZURE_EMBEDDING_MODEL_DEPLOYMENT = os.getenv('AZURE_EMBEDDING_MODEL_DEPLOYMENT')
+
+# from langchain.chat_models import AzureChatOpenAI
+# from langchain.schema import (
+#     SystemMessage,
+#     HumanMessage,
+#     AIMessage
+# )
+
 
 client = OpenAI(organization = OPENAI_ORGANIZATION, api_key = OPENAI_API_KEY)
 
