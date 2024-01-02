@@ -8,4 +8,5 @@
 # Ignore .pdf files
 *.doc
 __pycache__/
-*.py[cod]
+*.pyo
+*.pyc
