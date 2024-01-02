@@ -190,8 +190,10 @@ def get_gpt_response(client, model_name, messages, source, domain_choice):
 
     # Trim the conversation history to manage token and message limits
     messages = trim_conversation_history(messages)
+    print (messages)
     
     message_content, input_tokens, output_tokens, total_tokens, cost = call_openai(user_name_logged, user_input, model_name, messages, domain_choice)
+    
 
     
         
@@ -732,14 +734,19 @@ def extract_chunks_from_uploaded_file(uploaded_file, repo_selected_for_upload, p
     return chunks
 
 def process_openai(user_name_logged, prompt, model, Conversation, kr_repos_chosen, domain_choice):
-    print ("In process_openai ")
-
-
-    # Initialize or retrieve session state for messages
-    if 'messages' not in st.session_state:
-        st.session_state.messages = []
+    print ("In process_openai main call ")
+    print ("session.....")
+    print (st.session_state.messages)
+    
+    system_prompt = "You are a helpful assistant"
+    
+    if "messages" not in st.session_state:
+        st.session_state.messages = [{"role": "system", "content": system_prompt}]
         
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    if prompt:
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+    print (st.session_state.messages)    
     json_data = get_gpt_response(client, model_name, st.session_state.messages, "Open AI", domain_choice)
     return json_data
     
