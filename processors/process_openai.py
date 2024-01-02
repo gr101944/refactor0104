@@ -51,7 +51,8 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
         "inputTokens": input_tokens,
         "outputTokens": output_tokens,
         "cost": cost,
-        "feedback": ""
+        "feedback": "",
+        "domain": BU_choice
     }
 
     # st.session_state['current_user'] = user_name_logged
