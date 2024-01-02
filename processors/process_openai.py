@@ -40,6 +40,7 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
     
     random_string = str(uuid.uuid4())
     promptId_random = "prompt-" + random_string 
+    
         
     data = {    
         "userName": user_name_logged,
@@ -72,6 +73,7 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
         raise Exception(f"AWS Lambda invocation failed with status code: {lambda_response['StatusCode']}")
     else:
         print ("Success calling lambda!")
+        st.session_state['current_promptName'] = promptId_random
     print("Total Tokens:", total_tokens)     
     return message_content, input_tokens, output_tokens, total_tokens, cost
 # st.sidebar.write(f"**Usage Info:** ")

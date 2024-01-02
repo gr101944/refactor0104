@@ -1191,7 +1191,7 @@ with container:
             show_library = st.button("Your 📚", help = "click to see your prompt library")
 
         if show_library:
-                add_to_library_str = "Add to Library"              
+                              
                 data = {
                     "userName": st.session_state['current_user']
                 }
