@@ -110,7 +110,7 @@ def create_sidebar (st):
     # Radio button with options
         domain_choice = st.radio(
             "Choose a sector:",
-            ('Banking', 'Healthcare', 'CMT')  # Options for the radio button
+            ('Banking', 'Healthcare', 'CMT', 'Huddle')  # Options for the radio button
         )
     kr_repos_list = get_repository_list(domain_choice)
 
