@@ -1188,7 +1188,7 @@ with container:
 
 
         if not trigger_inference_image_uploaded and  trigger_inference:
-            show_library = st.button("Your 📚", help = "click to see your prompt library")
+            show_library = st.button("Your Library 📚", help = "click to see your prompt library")
 
         if show_library:
                               
