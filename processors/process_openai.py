@@ -23,13 +23,12 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
         messages=messages
     )
 
-    print(openai_response)
+    
     # Extracting the message content
     message_content = openai_response.choices[0].message.content
     print(message_content)
     st.session_state.messages.append({"role": "assistant", "content": message_content})
-    print ("session.....")
-    print (st.session_state.messages)
+
 
     # Extracting token usage information
     input_tokens = openai_response.usage.prompt_tokens
@@ -37,10 +36,7 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
     total_tokens = openai_response.usage.total_tokens
     cost = 0.0
 
-    print("Message Content:", message_content)
-    print("Input Tokens:", input_tokens)
-    print("Output Tokens:", output_tokens)
-    print("Total Tokens:", total_tokens)     
+ 
     
     random_string = str(uuid.uuid4())
     promptId_random = "prompt-" + random_string 

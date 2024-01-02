@@ -2,19 +2,14 @@ import os
 import boto3
 import json
 import dotenv
-# import openai
+
 from openai import OpenAI
 import PyPDF2
 import io
-from uuid import uuid4
-import uuid
+
 import pandas as pd
-
-from streamlit_option_menu import option_menu
-
 from langchain.llms import OpenAI
-from langchain.chains.question_answering import load_qa_chain
-from langchain.prompts import PromptTemplate
+
 import streamlit as st
 from langchain.vectorstores import Pinecone
 import pinecone
@@ -25,7 +20,7 @@ max_input_tokens_64k = 60000
 max_input_tokens_128k = 120000
 
 from langchain.chains import LLMChain 
-from langchain.agents import load_tools
+
 
 from langchain.embeddings.openai import OpenAIEmbeddings
 
@@ -33,25 +28,17 @@ from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMP
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 from langchain.chains.conversation.memory import ConversationEntityMemory
-from langchain.agents import initialize_agent
-from langchain.agents import AgentType
 from langchain.agents import ZeroShotAgent, Tool, AgentExecutor
 
 import streamlit as st
 # from streamlit_chat import message
 
-from langchain.document_loaders import UnstructuredFileLoader
-
 from langchain.document_loaders import Docx2txtLoader
-from langchain.document_loaders import UnstructuredExcelLoader
 from langchain.document_loaders import UnstructuredPowerPointLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.text_splitter import CharacterTextSplitter 
+
 
 from langchain.document_loaders import YoutubeLoader
-
-from langchain.utilities import WikipediaAPIWrapper
-
 from langchain.utilities import SerpAPIWrapper
 
 from utils.sidebar import create_sidebar
@@ -608,7 +595,7 @@ def process_pdf_file(file_content, file_path, repo_selected_for_upload, privacy_
     text_content = [page.extract_text() for page in pdf_reader.pages]
     text_splitter = create_text_splitter(chunk_size, chunk_overlap)
     chunks = text_splitter.create_documents(text_content)  
-    print (repo_selected_for_upload)
+    
     append_metadata(chunks, file_path,repo_selected_for_upload, privacy_setting)
    
     return chunks
@@ -882,9 +869,9 @@ def selected_data_sources(selected_elements, prompt, model, llm, Conversation, k
             elif (element == 'KR'):
                 print ('Processing KR')
                 str_response = selected_elements_functions[element](prompt, model, Conversation, kr_repos_chosen, domain_choice)
-                print (str_response)
+              
                 json_response = json.loads(str_response)
-                print (json_response)
+             
                 all_responses.append(json_response)
                 
             elif (element == 'Google'):
@@ -911,7 +898,7 @@ def selected_data_sources(selected_elements, prompt, model, llm, Conversation, k
             else:
                 print ("check chosen sources")
             accumulated_json = {"all_responses": all_responses}
-            print (accumulated_json)
+           
 
       
 
@@ -929,7 +916,7 @@ def update_prompt(like_status, comments):
         "feedback": like_status,
         "comments": comments
     }
-    print (data)
+   
 
     lambda_function_name = PROMPT_UPDATE_LAMBDA
     lambda_response = lambda_client.invoke(
@@ -1034,8 +1021,7 @@ def get_response(user_input, kr_repos_chosen):
                 st.session_state['generated_hf'].append(huggingface_response)
                 all_response_str = all_response_str + "From Hugging Face  \n" + "-----------------------------" + "\n\n" + huggingface_response + "\n\n"
               
-            else:
-                print("Uploads data is not available.")
+
                 
 
 

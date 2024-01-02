@@ -93,8 +93,6 @@ def create_sidebar (st):
     with st.sidebar:
         st.image(image_path, width=55)
     
-
-    
     task_list = [  'Query', 'Data Load']
     
     other_sources = ['Open AI', 'YouTube', 'Google', 'KR', 'text2Image']
@@ -208,6 +206,7 @@ def create_sidebar (st):
                         st.session_state['kr_repos_list'],
                         st.session_state['kr_repos_list'][0]  # Default selection
                     )
+                    print (kr_repos_chosen)
                 else:
                     
                     kr_repos_chosen = None
