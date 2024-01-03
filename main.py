@@ -8,7 +8,7 @@ import PyPDF2
 import io
 
 import pandas as pd
-from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 
 import streamlit as st
 from langchain.vectorstores import Pinecone
@@ -44,6 +44,7 @@ from langchain.utilities import SerpAPIWrapper
 from utils.sidebar import create_sidebar
 from utils.initialize_session import initialize_session
 from utils.clear_session import clear_session
+from utils.pricing import calculate_cost_fixed
 from utils.trim_conversation_manage_mem import trim_conversation_history
 from utils.get_num_tokens_from_string import get_num_tokens_from_string
 from processors.process_text2image import process_text2image
@@ -144,7 +145,7 @@ if 'current_promptName' not in st.session_state:
 
 model=model_name
 
-llm = OpenAI(model_name=model, temperature=temperature_value, max_tokens=max_output_tokens)
+llm = ChatOpenAI(model_name=model, temperature=temperature_value, max_tokens=max_output_tokens)
 
 clear_button = None
 #counter_placeholder.write(f"Total cost of this conversation: ${st.session_state['total_cost']:.5f}")
@@ -278,31 +279,29 @@ def get_embedding(text, model="text-embedding-ada-002"):
     
 
 def search_vector_store (persistence_choice, index_name, user_input, model, source, k_similarity, kr_repos_chosen, domain_choice):
-    print ('In search_vector_store', kr_repos_chosen)    
-    from langchain.callbacks import get_openai_callback
-
+    print ('In search_vector_store', kr_repos_chosen)  
+      
+    # st.session_state.messages.append({"role": "assistant", "content": message_content})
+    
     if 'chat_history_upload' not in st.session_state:   
         st.session_state['chat_history_upload'] = []
         
-    st.session_state['chat_history_upload'].append (user_input)
-    
-    chat_history_upload = st.session_state['chat_history_upload']
-   
-    template = """You are a chatbot having a conversation with a human.
+    # st.session_state['chat_history_upload'].append(user_input)
+    st.session_state['chat_history_upload'].insert(0, user_input)
+    print (st.session_state['chat_history_upload'])
 
-        Given the following extracted parts of a long document and a question, explain the answer in a paragraph
+    # Create a new list without duplicates
+    unique_chat_history = []
+    for item in st.session_state['chat_history_upload']:
+        if item not in unique_chat_history:
+            unique_chat_history.append(item)
 
-        {context}
-
-        {chat_history_upload}
-        Human: {user_input}
-        Chatbot:"""
-    
     n = 4  # Replace with the desired value of n
-        
-    total_elements = len(chat_history_upload)
-    result = ' '.join(chat_history_upload[:n]) if n <= total_elements else ' '.join(chat_history_upload)
-    print (result)
+    print ("Unique")
+    print (unique_chat_history)
+    total_elements = len(unique_chat_history)
+    result = ' '.join(unique_chat_history[:n]) if n <= total_elements else ' '.join(unique_chat_history)
+    print(result)
     dotenv.load_dotenv(".env")
     env_vars = dotenv.dotenv_values()
     for key in env_vars:
@@ -316,9 +315,8 @@ def search_vector_store (persistence_choice, index_name, user_input, model, sour
     index_name = pinecone_index_name
     
     index = pinecone.Index(index_name)
-    MODEL = "text-embedding-ada-002"
 
-    prompt_embedding = get_embedding (result,model=MODEL)
+    prompt_embedding = get_embedding (result,model=embedding_model_name)
     
 
     similarity_search_result = index.query(

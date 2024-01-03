@@ -6,6 +6,7 @@ from uuid import uuid4
 import uuid
 import boto3
 import json
+from utils.pricing import calculate_cost_fixed
 
 def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
     print ("In call_openai")
@@ -34,7 +35,8 @@ def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
     input_tokens = openai_response.usage.prompt_tokens
     output_tokens = openai_response.usage.completion_tokens
     total_tokens = openai_response.usage.total_tokens
-    cost = 0.0
+    cost  = calculate_cost_fixed (model_name, input_tokens, output_tokens)
+    
 
  
     
