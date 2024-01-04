@@ -8,13 +8,90 @@ import boto3
 import json
 from utils.pricing import calculate_cost_fixed
 
+
+
+
+
+def call_azure_openai (model_name, query):
+    print ("In call_azure_openai")
+    from langchain.chat_models import AzureChatOpenAI
+    from langchain.schema import (
+        SystemMessage,
+        HumanMessage,
+        AIMessage
+    )
+    
+    azuremessages = [
+        SystemMessage(content = "You are a helpful assistant")
+    ]
+    openai_temperature = 0.7
+    AZURE_OPENAI_API_KEY = os.getenv('AZURE_OPENAI_API_KEY')
+    AZURE_OPENAI_API_BASE = os.getenv('AZURE_OPENAI_API_BASE')
+    AZURE_OPENAI_API_VERSION_GPT432K = os.getenv('AZURE_OPENAI_API_VERSION_GPT432K')
+    AZURE_OPENAI_API_TYPE = os.getenv('AZURE_OPENAI_API_TYPE')
+    AZURE_EMBEDDING_MODEL_DEPLOYMENT = os.getenv('AZURE_EMBEDDING_MODEL_DEPLOYMENT')
+    
+    azurellm = AzureChatOpenAI(
+        api_version = AZURE_OPENAI_API_VERSION_GPT432K,
+        openai_api_key = AZURE_OPENAI_API_KEY,
+        model_name = model_name,
+        azure_endpoint = AZURE_OPENAI_API_BASE,
+        openai_api_type = AZURE_OPENAI_API_TYPE,
+        temperature = openai_temperature,
+        
+    )
+    azuremessages.append (
+        HumanMessage(
+            content=query
+        )
+    )
+    res = azurellm (azuremessages)
+    print ("From Azure...")
+    print (res)
+    return res
+    
+def call_openai_azure_core(deployment_name, version, max_token, query):    
+    print('call_openai_azure_core', deployment_name)
+    import os
+    
+    from openai import AzureOpenAI
+    
+    client = AzureOpenAI(
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+        api_version=version,
+        azure_endpoint = os.getenv("AZURE_OPENAI_API_BASE")
+    )
+    
+    # deployment_name= model_name #This will correspond to the custom name you chose for your deployment when you deployed a model. 
+    
+    # Send a completion call to generate an answer
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": query},
+
+    ]
+   
+    response = client.chat.completions.create(
+        model=deployment_name, 
+        messages=messages, 
+        max_tokens=max_token
+        )
+    print (response)
+
+    return response 
+
 def call_openai(user_name_logged, user_input, model_name, messages, BU_choice):
     print ("In call_openai")
+    
+    # call_azure_openai ("gpt432k", "what is the captal of France")
+    # azure_query = 'Write a tagline for an ice cream shop.' 
+    # azureopenai_response = call_openai_azure_core("gpt35turbo", "2023-07-01-preview", 20, azure_query)
 
     dotenv.load_dotenv(".env")
     env_vars = dotenv.dotenv_values()
     for key in env_vars:
         os.environ[key] = env_vars[key]
+        
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     OPENAI_ORGANIZATION = os.getenv('OPENAI_ORGANIZATION')
     client = OpenAI(organization = OPENAI_ORGANIZATION, api_key = OPENAI_API_KEY)

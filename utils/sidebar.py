@@ -108,7 +108,7 @@ def create_sidebar (st):
     # Radio button with options
         domain_choice = st.radio(
             "Choose a sector:",
-            ('Banking', 'Healthcare', 'CMT', 'Huddle')  # Options for the radio button
+            ('Huddle','Banking', 'Healthcare', 'CMT' )  # Options for the radio button
         )
     kr_repos_list = get_repository_list(domain_choice)
 
@@ -153,7 +153,7 @@ def create_sidebar (st):
     macro_view = None
     youtube_url = None
     uploaded_files = None
-    trigger_inference = None
+    trigger_image_inference = None
     upload_kr_docs_button = None
     repo_selected_for_upload = None
     kr_repos_chosen = None
@@ -186,7 +186,7 @@ def create_sidebar (st):
                 'Image Generation:',
                 text2Image_source               
               )
-            trigger_inference = st.sidebar.checkbox("Run Image Inference")
+            trigger_image_inference = st.sidebar.checkbox("Run Image Inference")
             st.sidebar.link_button("Explore SnowBench ❄️", SNOWBENCH_URL, help = "Ask questions to SnowFlake warehouse in natural language",)
 
             
@@ -244,7 +244,7 @@ def create_sidebar (st):
         chunk_overlap,
         temperature_value,
         show_text_area,
-        trigger_inference,
+        trigger_image_inference,
         domain_choice,
         privacy_setting    
         

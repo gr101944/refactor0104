@@ -135,7 +135,7 @@ if 'current_promptName' not in st.session_state:
     chunk_overlap,
     temperature_value,
     show_text_area,
-    trigger_inference,
+    trigger_image_inference,
     domain_choice,
     privacy_setting
    
@@ -963,7 +963,7 @@ def get_response(user_input, kr_repos_chosen):
                 'kr_response':None
             }
 
-            if not trigger_inference:
+            if not trigger_image_inference:
                 for response in data:
                     source = response['source']
                     if source in selected_sources:
@@ -1057,6 +1057,10 @@ def get_response(user_input, kr_repos_chosen):
 response_container = st.container()
 # container for text box
 container = st.container()
+trigger_inference_image_uploaded = False
+show_library = ''
+add_to_library = ''
+improve_button = ''
 
 with container:    
     if (task =='Data Load'):
@@ -1072,7 +1076,20 @@ with container:
             placeholder_default = None
             ask_text = "**Selected Sources:** " + "**:green[" + selected_sources_text + "]**" 
             user_input = st.text_area(ask_text, height=150, key='input', value = default_text_value, placeholder=placeholder_default, label_visibility="visible") 
+            col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+            with col1:
+                goButton = st.button("Go")   
+                                
+            with col3:
+                show_library = st.button("Your Library📚", help = "click to see your prompt library")
+            with col2:
+                add_to_library = st.button("Add to Library📚", help = "add this prompt to your prompt library") 
+            with col4:
+                improve_button = st.button("Improve", type="primary", help = "report this prompt to for investigation")         
             
+            if goButton:         
+                get_response (user_input, kr_repos_chosen)
+                        
         else:
             if macro_view:
                 try:
@@ -1093,9 +1110,9 @@ with container:
                   
                 except pinecone.exceptions.PineconeException as e:
                     print(f"An error occurred: {str(e)}")
-            trigger_inference_image_uploaded = False
+            
                 
-            if trigger_inference:  
+            if trigger_image_inference:  
                 print ("In trigger_inference")  
                 selected_sources_text = "Image Inference"
                 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])  
@@ -1155,7 +1172,7 @@ with container:
                     
                 # Display the conversation history using an expander, and allow the user to download it.
         words_in_input_text = False
-        if ((trigger_inference_image_uploaded and trigger_inference) or (not trigger_inference)):
+        if ((trigger_inference_image_uploaded and trigger_image_inference) or (not trigger_image_inference)):
            
             if user_input.strip():  # This ensures that empty spaces are not counted
                 words = user_input.split()
@@ -1185,7 +1202,7 @@ with container:
                     placeholder.empty()  # This clears the form
 
 
-        if not trigger_inference_image_uploaded and  trigger_inference:
+        if not trigger_inference_image_uploaded and  trigger_image_inference:
             show_library = st.button("Your Library 📚", help = "click to see your prompt library")
 
         if show_library:
